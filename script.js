@@ -1,30 +1,20 @@
 const flaps = document.getElementsByClassName('flap');
-let daysDeg = 0;
-let hoursDeg = 0;
-let minutesDeg = 0;
-let secondsDeg = 0;
-let daysLast = 0;
-let hoursLast = 0;
-let minutesLast = 0;
-function flip(last, get, deg, num){
-    if(last!=get){
-        deg = deg == 0 ? 360 : 0;
-        flaps[num].style = "transform: rotateX("+deg+"deg); transition: transform 1s;";
-        return deg
-    } else {
-        return deg
-    }
+let {0:dateDeg,1:hoursDeg,2:minutesDeg,3:secondsDeg,4:dateLast,5:hoursLast,6:minutesLast} = new Array(7).fill(0);
+const array = [[dateDeg,dateLast],[hoursDeg,hoursLast],[minutesDeg,minutesLast]];
+const makeFlip = (deg, num) => {
+    deg = deg == 0 ? 360 : 0;
+    flaps[num].style = "transform: rotateX("+deg+"deg); transition: transform 1s;";
+    return deg;
 }
+const flip = (last, get, deg, num) => last!=get ? makeFlip(deg, num) : deg;
 window.setInterval(function(){  
     const date = new Date();
-    daysDeg = flip(daysLast, date.getDate(), daysDeg, 0);
-    hoursDeg = flip(hoursLast, date.getHours(), hoursDeg, 1);
-    minutesDeg = flip(minutesLast, date.getMinutes(), minutesDeg, 2);
-    daysLast = date.getDate();
-    hoursLast = date.getHours();
-    minutesLast = date.getMinutes();
-    secondsDeg = secondsDeg == 0 ? 360 : 0;
-    flaps[3].style = "transform: rotateX("+secondsDeg+"deg); transition: transform 1s;";
+    for(let i=0;i<array.length;i++){
+        const actual = i==0?date.getDate():(i==1?date.getHours():date.getMinutes());
+        array[i][0] = flip(array[i][1], actual, array[i][0], i);
+        array[i][1] = actual;
+    }
+    secondsDeg = makeFlip(secondsDeg, 3);
     flaps[0].innerHTML = 23-date.getDate();
     flaps[1].innerHTML = 23-date.getHours();
     flaps[2].innerHTML = 59-date.getMinutes();
